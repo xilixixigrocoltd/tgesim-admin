@@ -4,9 +4,9 @@ import { checkAuth } from '@/lib/auth'
 import crypto from 'crypto'
 import https from 'https'
 
-const API_KEY = process.env.TGESIM_API_KEY!
-const API_SECRET = process.env.TGESIM_API_SECRET!
-const BASE_URL = process.env.TGESIM_API_URL!
+const API_KEY = (process.env.TGESIM_API_KEY || '').trim()
+const API_SECRET = (process.env.TGESIM_API_SECRET || '').trim()
+const BASE_URL = (process.env.TGESIM_API_URL || 'https://api.xigrocoltd.com').trim()
 const TG_BOT_TOKEN = process.env.TG_BOT_TOKEN || '8408392839:AAF6Xqoqrm4c87DvQe1fJ4izBgyAE5m3YnY'
 
 // Get server timestamp from API response headers (required by supplier)
