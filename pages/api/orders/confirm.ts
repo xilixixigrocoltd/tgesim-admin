@@ -221,6 +221,55 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await sendTelegramMessage(order.tg_id, msg)
       }
 
+      // 5. Auto-calculate and record agent commission if referral_code exists
+      if (order.referral_code) {
+        try {
+          const { data: agent } = await supabase
+            .from('agents')
+            .select('id, agent_type')
+            .eq('referral_code', order.referral_code)
+            .single()
+
+          if (agent) {
+            const { data: product } = await supabase
+              .from('miniapp_products')
+              .select('price, cost_price, profit_rate')
+              .eq('id', order.product_id)
+              .single()
+
+            if (product && product.cost_price != null) {
+              const profit = product.price - product.cost_price
+              if (profit > 0) {
+                const profitRate = profit / product.price
+
+                let commissionRate = 0.60 // C类默认
+                if (profitRate >= 0.5) commissionRate = 0.80 // A类
+                else if (profitRate >= 0.3) commissionRate = 0.70 // B类
+
+                const commissionAmount = profit * commissionRate
+
+                await supabase.from('commissions').insert({
+                  agent_id: agent.id,
+                  order_id: order.id,
+                  product_id: order.product_id,
+                  product_name: order.product_name,
+                  sale_amount: order.amount,
+                  cost_price: product.cost_price,
+                  profit: profit,
+                  commission_rate: commissionRate,
+                  commission_amount: commissionAmount,
+                  agent_type: agent.agent_type,
+                  status: 'pending',
+                })
+                console.log(`[commission] Recorded $${commissionAmount.toFixed(2)} for agent ${agent.id}`)
+              }
+            }
+          }
+        } catch (commissionErr) {
+          console.error('[commission] Failed to record commission:', commissionErr)
+        }
+      }
+
       return res.json({
         ok: true,
         message: 'eSIM已发货并通知用户',
