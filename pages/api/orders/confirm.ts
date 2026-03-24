@@ -110,6 +110,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .update({ status: 'paid', tx_hash: txHash, updated_at: new Date().toISOString() })
       .eq('id', orderId)
     if (error) return res.status(500).json({ error: error.message })
+
+    // AML: fetch order details and write log
+    try {
+      const { data: order } = await supabase
+        .from('miniapp_orders')
+        .select('tg_id, tg_username, amount, payment_method')
+        .eq('id', orderId)
+        .single()
+      if (order) {
+        await supabase.from('aml_logs').insert({
+          order_id: orderId,
+          tg_id: order.tg_id,
+          tg_username: order.tg_username,
+          payment_method: order.payment_method || 'USDT',
+          tx_hash: txHash,
+          amount: order.amount,
+          currency: order.payment_method === 'ton' ? 'TON' : 'USDT',
+          created_at: new Date().toISOString(),
+        })
+      }
+    } catch (amlErr) {
+      console.error('[AML] Failed to write log:', amlErr)
+    }
+
     return res.json({ ok: true, message: '付款已确认' })
   }
 
@@ -121,6 +145,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .update({ status: 'paid', tx_hash: txHash, updated_at: new Date().toISOString() })
       .eq('id', orderId)
     if (payErr) return res.status(500).json({ error: payErr.message })
+
+    // AML: write log for confirm_and_deliver
+    try {
+      const { data: amlOrder } = await supabase
+        .from('miniapp_orders')
+        .select('tg_id, tg_username, amount, payment_method')
+        .eq('id', orderId)
+        .single()
+      if (amlOrder) {
+        await supabase.from('aml_logs').insert({
+          order_id: orderId,
+          tg_id: amlOrder.tg_id,
+          tg_username: amlOrder.tg_username,
+          payment_method: amlOrder.payment_method || 'USDT',
+          tx_hash: txHash,
+          amount: amlOrder.amount,
+          currency: amlOrder.payment_method === 'ton' ? 'TON' : 'USDT',
+          created_at: new Date().toISOString(),
+        })
+      }
+    } catch (amlErr) {
+      console.error('[AML] Failed to write log:', amlErr)
+    }
 
     // Fall through to deliver
   }
