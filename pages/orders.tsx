@@ -42,6 +42,27 @@ export default function Orders() {
     setProcessing(null)
   }
 
+  // 一键确认付款并自动发货
+  const confirmAndDeliver = async (orderId: string) => {
+    if (!txHash.trim()) return alert('请输入交易哈希')
+    if (!confirm('确认收款并自动向供应商下单发送eSIM给用户？')) return
+    setProcessing(orderId)
+    const r = await fetch('/api/orders/confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, txHash, action: 'confirm_and_deliver' })
+    })
+    const d = await r.json()
+    if (d.ok) {
+      alert(`✅ 发货成功！\nICCID: ${d.esim?.iccid || '待获取'}\n${d.tgNotified ? '已通过 Telegram 通知用户' : '⚠️ 用户无 tg_id，未发送 Telegram 通知'}`)
+      setTxHash('')
+      loadOrders()
+    } else {
+      alert('❌ ' + d.error)
+    }
+    setProcessing(null)
+  }
+
   const sendEsim = async (orderId: string) => {
     if (!confirm('确认向供应商下单并发送eSIM？')) return
     setProcessing(orderId)
@@ -51,8 +72,12 @@ export default function Orders() {
       body: JSON.stringify({ orderId, action: 'send_esim' })
     })
     const d = await r.json()
-    if (d.ok) { alert('✅ eSIM已发送\nICCID: ' + d.esim?.iccid); loadOrders() }
-    else alert('❌ ' + d.error)
+    if (d.ok) {
+      alert(`✅ eSIM已发送\nICCID: ${d.esim?.iccid}\n${d.tgNotified ? '已通过 Telegram 通知用户' : '⚠️ 未发送 Telegram 通知'}`)
+      loadOrders()
+    } else {
+      alert('❌ ' + d.error)
+    }
     setProcessing(null)
   }
 
@@ -122,6 +147,11 @@ export default function Orders() {
                         disabled={processing === order.id}
                         className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg disabled:opacity-50">
                         ✅ 确认付款
+                      </button>
+                      <button onClick={() => confirmAndDeliver(order.id)}
+                        disabled={processing === order.id}
+                        className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded-lg disabled:opacity-50 font-semibold">
+                        {processing === order.id ? '处理中...' : '🚀 确认并发货'}
                       </button>
                     </div>
                   )}
