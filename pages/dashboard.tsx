@@ -33,6 +33,11 @@ export default function Dashboard() {
     { label: '本月访客', value: visitorStats.month?.visitors || 0, color: 'text-cyan-400', bg: 'bg-cyan-500/10', icon: '📅' },
     { label: '总访客数', value: visitorStats.total?.visitors || 0, color: 'text-purple-400', bg: 'bg-purple-500/10', icon: '📊' },
     { label: '活跃用户', value: visitorStats.activeUsers || 0, color: 'text-purple-400', bg: 'bg-purple-500/10', icon: '⭐' },
+    ...(visitorStats.persisted ? [
+      { label: '今日记录', value: visitorStats.persisted.dailyVisitors || 0, color: 'text-blue-400', bg: 'bg-blue-500/10', icon: '📅' },
+      { label: '本月记录', value: visitorStats.persisted.monthlyVisitors || 0, color: 'text-blue-400', bg: 'bg-blue-500/10', icon: '📆' },
+      { label: '访问历史', value: visitorStats.persisted.visitorHistory || 0, color: 'text-green-400', bg: 'bg-green-500/10', icon: '📋' }
+    ] : [])
   ] : []
 
   return (

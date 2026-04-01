@@ -1,6 +1,7 @@
 import { checkAuth } from '@/lib/auth';
 import fs from 'fs/promises';
 import path from 'path';
+import { loadVisitorStats } from '@/lib/storage';
 
 // 读取Telegram Bot的数据文件获取访客统计
 async function getVisitorStatsFromBotData() {
@@ -44,6 +45,9 @@ async function getVisitorStatsFromBotData() {
     // 总收入
     const totalRevenue = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
     
+    // 获取持久化访客统计
+    const persistedStats = await loadVisitorStats();
+    
     return {
       today: {
         visitors: todayUserSet.size,  // 去重后的用户数
@@ -68,7 +72,13 @@ async function getVisitorStatsFromBotData() {
         amount: o.amount,
         status: o.status,
         createdAt: o.createdAt
-      }))
+      })),
+      // 添加持久化数据
+      persisted: {
+        dailyVisitors: persistedStats.dailyVisitors[today]?.length || 0,
+        monthlyVisitors: persistedStats.monthlyVisitors[currentMonth]?.length || 0,
+        visitorHistory: Object.keys(persistedStats.visitorHistory).length
+      }
     };
   } catch (error) {
     console.error('Error fetching visitor stats from bot data:', error);
@@ -78,7 +88,12 @@ async function getVisitorStatsFromBotData() {
       month: { visitors: 0, revenue: 0, orders: 0 },
       total: { visitors: 0, revenue: 0, orders: 0 },
       activeUsers: 0,
-      recentOrders: []
+      recentOrders: [],
+      persisted: {
+        dailyVisitors: 0,
+        monthlyVisitors: 0,
+        visitorHistory: 0
+      }
     };
   }
 }
@@ -98,7 +113,12 @@ export default async function handler(req, res) {
       month: { visitors: 0, revenue: 0, orders: 0 },
       total: { visitors: 0, revenue: 0, orders: 0 },
       activeUsers: 0,
-      recentOrders: []
+      recentOrders: [],
+      persisted: {
+        dailyVisitors: 0,
+        monthlyVisitors: 0,
+        visitorHistory: 0
+      }
     });
   }
 }

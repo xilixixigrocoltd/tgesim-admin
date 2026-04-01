@@ -174,6 +174,36 @@ export default function VisitorStatsPage() {
               </div>
             </div>
 
+            {/* 持久化数据 */}
+            {stats.persisted && (
+              <div className="mb-6">
+                <h2 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-3">持久化统计</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <StatCard
+                    icon="📅"
+                    label="今日记录访客"
+                    value={stats.persisted.dailyVisitors}
+                    sub="持久化存储"
+                    color="blue"
+                  />
+                  <StatCard
+                    icon="📆"
+                    label="本月记录访客"
+                    value={stats.persisted.monthlyVisitors}
+                    sub="持久化存储"
+                    color="blue"
+                  />
+                  <StatCard
+                    icon="📋"
+                    label="访问历史"
+                    value={stats.persisted.visitorHistory}
+                    sub="用户访问记录"
+                    color="green"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="mb-6">
               <h2 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-3">活跃用户</h2>
               <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">

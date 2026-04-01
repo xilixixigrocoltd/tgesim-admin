@@ -1,6 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { serialize } from 'cookie'
 import { validatePassword, getPassword } from '../../../lib/password-store'
+import { initializeStorage } from '../../../lib/storage'
+
+// 初始化存储
+initializeStorage().catch(console.error);
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
