@@ -14,7 +14,7 @@ interface Stats {
 
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null)
-  const [visitorStats, setVisitorStats] = useState(null)
+  const [visitorStats, setVisitorStats] = useState<any>(null)
 
   useEffect(() => {
     fetch('/api/stats').then(r => r.json()).then(setStats)
@@ -29,10 +29,10 @@ export default function Dashboard() {
   ]
 
   const visitorCards = visitorStats ? [
-    { label: '今日访客', value: visitorStats.today.visitors, color: 'text-cyan-400', bg: 'bg-cyan-500/10', icon: '👥' },
-    { label: '本月访客', value: visitorStats.month.visitors, color: 'text-cyan-400', bg: 'bg-cyan-500/10', icon: '📅' },
-    { label: '总访客数', value: visitorStats.total.visitors, color: 'text-purple-400', bg: 'bg-purple-500/10', icon: '📊' },
-    { label: '活跃用户', value: visitorStats.activeUsers, color: 'text-purple-400', bg: 'bg-purple-500/10', icon: '⭐' },
+    { label: '今日访客', value: visitorStats.today?.visitors || 0, color: 'text-cyan-400', bg: 'bg-cyan-500/10', icon: '👥' },
+    { label: '本月访客', value: visitorStats.month?.visitors || 0, color: 'text-cyan-400', bg: 'bg-cyan-500/10', icon: '📅' },
+    { label: '总访客数', value: visitorStats.total?.visitors || 0, color: 'text-purple-400', bg: 'bg-purple-500/10', icon: '📊' },
+    { label: '活跃用户', value: visitorStats.activeUsers || 0, color: 'text-purple-400', bg: 'bg-purple-500/10', icon: '⭐' },
   ] : []
 
   return (
