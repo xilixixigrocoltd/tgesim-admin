@@ -14,38 +14,62 @@ interface Stats {
 
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null)
+  const [visitorStats, setVisitorStats] = useState(null)
 
   useEffect(() => {
     fetch('/api/stats').then(r => r.json()).then(setStats)
+    fetch('/api/visitor-stats').then(r => r.json()).then(setVisitorStats)
   }, [])
 
-  const cards = [
+  const businessCards = [
     { label: '待处理订单', value: stats?.pendingOrders ?? '-', color: 'text-red-400', bg: 'bg-red-500/10', icon: '⏳' },
     { label: '今日订单', value: stats?.todayOrders ?? '-', color: 'text-blue-400', bg: 'bg-blue-500/10', icon: '📦' },
     { label: '今日收入', value: stats ? `$${stats.todayRevenue}` : '-', color: 'text-green-400', bg: 'bg-green-500/10', icon: '💰' },
     { label: '总收入', value: stats ? `$${stats.totalRevenue}` : '-', color: 'text-orange-400', bg: 'bg-orange-500/10', icon: '📊' },
   ]
 
+  const visitorCards = visitorStats ? [
+    { label: '今日访客', value: visitorStats.today.visitors, color: 'text-cyan-400', bg: 'bg-cyan-500/10', icon: '👥' },
+    { label: '本月访客', value: visitorStats.month.visitors, color: 'text-cyan-400', bg: 'bg-cyan-500/10', icon: '📅' },
+    { label: '总访客数', value: visitorStats.total.visitors, color: 'text-purple-400', bg: 'bg-purple-500/10', icon: '📊' },
+    { label: '活跃用户', value: visitorStats.activeUsers, color: 'text-purple-400', bg: 'bg-purple-500/10', icon: '⭐' },
+  ] : []
+
   return (
     <>
       <Head><title>仪表盘 - tgesim管理后台</title></Head>
       <div className="min-h-screen bg-gray-900 text-white">
-        <nav className="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">📡</span>
-            <span className="font-bold text-lg">tgesim 管理后台</span>
-          </div>
-          <div className="flex gap-6 text-sm">
-            <Link href="/dashboard" className="text-orange-400 font-medium">仪表盘</Link>
-            <Link href="/orders" className="text-gray-400 hover:text-white">订单管理</Link>
-            <Link href="/products" className="text-gray-400 hover:text-white">产品管理</Link>
+        <nav className="bg-gray-800 border-b border-gray-700 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">📡</span>
+              <span className="font-bold text-lg">tgesim 管理后台</span>
+            </div>
+            <div className="flex gap-6 text-sm">
+              <Link href="/dashboard" className="text-orange-400 font-medium">仪表盘</Link>
+              <Link href="/visitor-stats" className="text-gray-400 hover:text-white">访客统计</Link>
+              <Link href="/orders" className="text-gray-400 hover:text-white">订单管理</Link>
+              <Link href="/products" className="text-gray-400 hover:text-white">产品管理</Link>
+            </div>
           </div>
         </nav>
         <div className="max-w-6xl mx-auto px-6 py-8">
           <h1 className="text-2xl font-bold mb-6">仪表盘</h1>
+          {/* 访客统计卡片 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {cards.map((c, i) => (
-              <div key={i} className={`${c.bg} border border-gray-700 rounded-xl p-5`}>
+            {visitorCards.map((c, i) => (
+              <div key={`visitor-${i}`} className={`${c.bg} border border-gray-700 rounded-xl p-5`}>
+                <div className="text-2xl mb-2">{c.icon}</div>
+                <div className={`text-2xl font-bold ${c.color}`}>{c.value}</div>
+                <div className="text-gray-400 text-sm mt-1">{c.label}</div>
+              </div>
+            ))}
+          </div>
+          
+          {/* 业务统计卡片 */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {businessCards.map((c, i) => (
+              <div key={`business-${i}`} className={`${c.bg} border border-gray-700 rounded-xl p-5`}>
                 <div className="text-2xl mb-2">{c.icon}</div>
                 <div className={`text-2xl font-bold ${c.color}`}>{c.value}</div>
                 <div className="text-gray-400 text-sm mt-1">{c.label}</div>

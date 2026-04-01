@@ -36,15 +36,18 @@ export default function Products() {
     <>
       <Head><title>产品管理 - tgesim管理后台</title></Head>
       <div className="min-h-screen bg-gray-900 text-white">
-        <nav className="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">📡</span>
-            <span className="font-bold text-lg">tgesim 管理后台</span>
-          </div>
-          <div className="flex gap-6 text-sm">
-            <Link href="/dashboard" className="text-gray-400 hover:text-white">仪表盘</Link>
-            <Link href="/orders" className="text-gray-400 hover:text-white">订单管理</Link>
-            <Link href="/products" className="text-orange-400 font-medium">产品管理</Link>
+        <nav className="bg-gray-800 border-b border-gray-700 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">📡</span>
+              <span className="font-bold text-lg">tgesim 管理后台</span>
+            </div>
+            <div className="flex gap-6 text-sm">
+              <Link href="/dashboard" className="text-gray-400 hover:text-white">仪表盘</Link>
+              <Link href="/visitor-stats" className="text-gray-400 hover:text-white">访客统计</Link>
+              <Link href="/orders" className="text-gray-400 hover:text-white">订单管理</Link>
+              <Link href="/products" className="text-orange-400 font-medium">产品管理</Link>
+            </div>
           </div>
         </nav>
         <div className="max-w-7xl mx-auto px-6 py-8">
